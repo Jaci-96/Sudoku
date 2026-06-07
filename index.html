@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sudoku Generator</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app">
+      <section class="topbar" aria-label="Spielsteuerung">
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="8" y="8" width="48" height="48" rx="8"></rect>
+            <path d="M24 8v48M40 8v48M8 24h48M8 40h48"></path>
+            <circle cx="24" cy="24" r="4"></circle>
+            <circle cx="40" cy="40" r="4"></circle>
+          </svg>
+          <div>
+            <h1>Sudoku</h1>
+            <p>Generator & Spiel</p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <label class="field">
+            <span>Schwierigkeit</span>
+            <select id="difficulty">
+              <option value="easy">Einfach</option>
+              <option value="medium" selected>Mittel</option>
+              <option value="hard">Schwer</option>
+              <option value="expert">Experte</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="game-shell">
+        <aside class="status-panel" aria-label="Spielstatus">
+          <div class="stat">
+            <span>Zeit</span>
+            <strong id="timer">00:00</strong>
+          </div>
+          <div class="stat">
+            <span>Fehler</span>
+            <strong><span id="mistakes">0</span>/3</strong>
+          </div>
+          <div class="stat">
+            <span>Gefüllt</span>
+            <strong><span id="filled">0</span>/81</strong>
+          </div>
+          <div class="actions">
+            <button id="pause" type="button" aria-pressed="false">Pause</button>
+            <button id="notesToggle" type="button" aria-pressed="false">Notizen</button>
+            <button id="hint" type="button">Tipp</button>
+            <button id="erase" type="button">Löschen</button>
+          </div>
+        </aside>
+
+        <div class="board-wrap">
+          <div id="startMenu" class="start-menu" aria-label="Schwierigkeit auswählen">
+            <button type="button" data-difficulty="easy">Einfach</button>
+            <button type="button" data-difficulty="medium">Mittel</button>
+            <button type="button" data-difficulty="hard">Schwer</button>
+            <button type="button" data-difficulty="expert">Experte</button>
+          </div>
+          <div id="board" class="board" role="grid" aria-label="Sudoku Spielfeld"></div>
+          <div id="pauseOverlay" class="pause-overlay" aria-hidden="true">
+            <strong>Pausiert</strong>
+            <span>Drücke Weiter, um weiterzuspielen.</span>
+          </div>
+        </div>
+
+        <aside class="number-panel" aria-label="Zahlenauswahl">
+          <div id="numberPad" class="number-pad"></div>
+          <p id="message" class="message" aria-live="polite">Wähle ein Feld und setze eine Zahl.</p>
+        </aside>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
