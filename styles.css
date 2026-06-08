@@ -1,21 +1,21 @@
 :root {
   color-scheme: light;
-  --ink: #3a2630;
-  --muted: #876675;
-  --paper: #fff7fb;
+  --ink: #2f2940;
+  --muted: #716684;
+  --paper: #faf7ff;
   --panel: #ffffff;
-  --panel-soft: #fffafd;
-  --line: #e8bfd0;
-  --bold-line: #8c4b66;
-  --accent: #d95f91;
-  --accent-dark: #b83f74;
-  --accent-soft: #ffe0ed;
+  --panel-soft: #fdfbff;
+  --line: #d7c8f2;
+  --bold-line: #6f5a9b;
+  --accent: #a98be8;
+  --accent-dark: #7d60be;
+  --accent-soft: #eee7ff;
   --warn: #c7375b;
-  --soft: #fff0f6;
-  --gold: #d95f91;
-  --rose: #d95f91;
-  --shadow: 0 22px 54px rgba(140, 75, 102, 0.14);
-  --small-shadow: 0 12px 30px rgba(140, 75, 102, 0.09);
+  --soft: #f4efff;
+  --gold: #a98be8;
+  --rose: #a98be8;
+  --shadow: 0 22px 54px rgba(111, 90, 155, 0.14);
+  --small-shadow: 0 12px 30px rgba(111, 90, 155, 0.09);
 }
 
 * {
@@ -59,7 +59,7 @@ button:active {
 
 button:focus-visible,
 select:focus-visible {
-  outline: 3px solid rgba(217, 95, 145, 0.28);
+  outline: 3px solid rgba(169, 139, 232, 0.3);
   outline-offset: 2px;
 }
 
@@ -146,6 +146,10 @@ h1 {
   opacity: 0.55;
 }
 
+.start-mode .controls {
+  display: none;
+}
+
 .field {
   display: grid;
   gap: 6px;
@@ -164,12 +168,26 @@ select {
   box-shadow: 0 5px 14px rgba(30, 41, 48, 0.06);
 }
 
+.new-game {
+  min-height: 42px;
+  padding: 0 14px;
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.new-game:hover {
+  color: #ffffff;
+  background: var(--accent);
+}
+
 .primary {
   padding: 0 18px;
   border-color: var(--accent);
   color: white;
   background: var(--accent);
-  box-shadow: 0 10px 22px rgba(217, 95, 145, 0.24);
+  box-shadow: 0 10px 22px rgba(169, 139, 232, 0.24);
 }
 
 .primary:hover {
@@ -223,8 +241,8 @@ select {
 
 .actions button[aria-pressed="true"] {
   border-color: var(--gold);
-  background: #ffe5f0;
-  box-shadow: 0 8px 18px rgba(217, 95, 145, 0.16);
+  background: #eee7ff;
+  box-shadow: 0 8px 18px rgba(169, 139, 232, 0.16);
 }
 
 .board-wrap {
@@ -260,7 +278,7 @@ select {
   font-size: 1.12rem;
   font-weight: 850;
   color: var(--accent-dark);
-  border-color: rgba(217, 95, 145, 0.28);
+  border-color: rgba(169, 139, 232, 0.32);
 }
 
 .start-menu button:hover,
@@ -342,7 +360,7 @@ select {
 
 .cell:hover {
   transform: none;
-  box-shadow: inset 0 0 0 2px rgba(217, 95, 145, 0.22);
+  box-shadow: inset 0 0 0 2px rgba(169, 139, 232, 0.24);
 }
 
 .cell:nth-child(3n) {
@@ -364,29 +382,34 @@ select {
 
 .cell.given {
   color: var(--ink);
-  background: #fff0f6;
   font-weight: 780;
 }
 
 .cell.selected {
-  background: #ffd6e6;
+  background: #e4d8ff;
 }
 
 .cell.multi-selected {
-  background: #ffdcea;
-  box-shadow: inset 0 0 0 3px rgba(217, 95, 145, 0.42);
+  background: #ded0ff;
+  box-shadow: inset 0 0 0 3px rgba(169, 139, 232, 0.42);
 }
 
 .cell.related {
-  background: #fff7fb;
+  background: #f3eeff;
 }
 
 .cell.same {
-  background: #ffe8f1;
+  background: #e8ddff;
+  box-shadow: inset 0 0 0 2px rgba(125, 96, 190, 0.28);
 }
 
 .cell.same.multi-selected {
-  background: #ffc6dc;
+  background: #d4c2ff;
+}
+
+.cell.selected.same {
+  background: #d8c8ff;
+  box-shadow: inset 0 0 0 3px rgba(125, 96, 190, 0.34);
 }
 
 .cell.error {
@@ -439,7 +462,7 @@ select {
 
 .number-pad button.complete {
   color: var(--muted);
-  background: #fff0f6;
+  background: #f4efff;
 }
 
 .message {
@@ -470,59 +493,173 @@ select {
 }
 
 @media (max-width: 620px) {
+  body {
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
   .app {
-    width: min(100vw - 18px, 520px);
-    padding: 14px 0;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 4px;
+    width: min(100vw - 12px, 520px);
+    height: 100dvh;
+    padding: 6px 0;
   }
 
-  .topbar,
+  .topbar {
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+    padding: 6px 8px;
+  }
+
+  .brand {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  h1 {
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+
+  .brand p,
+  .field span,
+  .message {
+    display: none;
+  }
+
   .controls {
-    align-items: stretch;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: minmax(0, 118px) auto;
+    align-items: end;
+    flex: 0 0 auto;
+    gap: 6px;
   }
 
-  .controls {
-    gap: 10px;
+  select {
+    width: 118px;
+    min-width: 0;
+    height: 34px;
+    padding: 0 28px 0 10px;
+    font-size: 0.86rem;
   }
 
-  select,
-  .primary {
-    width: 100%;
+  .new-game {
+    min-height: 34px;
+    padding: 0 8px;
+    font-size: 0.78rem;
   }
 
   .game-shell {
     grid-template-columns: 1fr;
-    gap: 14px;
+    grid-template-rows: auto auto auto;
+    align-items: stretch;
+    align-content: start;
+    gap: 3px;
+    min-height: 0;
   }
 
   .status-panel {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
   }
 
   .actions {
-    grid-template-columns: repeat(2, 1fr);
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
   }
 
   .stat {
-    padding: 10px;
+    min-height: 38px;
+    padding: 5px 4px;
+    text-align: center;
+  }
+
+  .stat span {
+    font-size: 0.58rem;
   }
 
   .stat strong {
-    font-size: 1.15rem;
+    margin-top: 2px;
+    font-size: 0.88rem;
+  }
+
+  button {
+    min-height: 34px;
+  }
+
+  .actions button {
+    min-width: 0;
+    padding: 0 3px;
+    font-size: clamp(0.68rem, 2.6vw, 0.82rem);
+  }
+
+  .board-wrap {
+    align-self: start;
+    justify-self: center;
+    width: min(100%, calc(100dvh - 184px));
+    padding: 6px;
+  }
+
+  .start-mode .status-panel,
+  .start-mode .number-panel {
+    display: none;
+  }
+
+  .start-mode .game-shell {
+    grid-template-rows: minmax(0, 1fr);
+    align-content: center;
+  }
+
+  .start-mode .board-wrap {
+    align-self: center;
+    width: min(100%, calc(100dvh - 68px));
+  }
+
+  .start-menu {
+    gap: 8px;
+  }
+
+  .start-menu button {
+    width: min(240px, 68vw);
+    min-height: 44px;
+    font-size: 0.98rem;
+  }
+
+  .pause-overlay {
+    inset: 6px;
+  }
+
+  .cell {
+    font-size: clamp(1rem, 6vw, 1.8rem);
+  }
+
+  .cell .notes {
+    font-size: clamp(0.38rem, 1.8vw, 0.6rem);
   }
 
   .number-panel {
     grid-template-columns: 1fr;
+    gap: 0;
+    min-height: 0;
   }
 
   .number-pad {
     grid-template-columns: repeat(9, 1fr);
-    gap: 5px;
-    padding: 6px;
+    gap: 4px;
+    padding: 5px;
   }
 
   .number-pad button {
-    font-size: 1rem;
+    min-height: 30px;
+    font-size: 0.95rem;
   }
 }

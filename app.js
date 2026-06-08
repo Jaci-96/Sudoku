@@ -11,6 +11,7 @@ const notesToggle = document.querySelector("#notesToggle");
 const eraseButton = document.querySelector("#erase");
 const hintButton = document.querySelector("#hint");
 const pauseButton = document.querySelector("#pause");
+const newGameButton = document.querySelector("#newGame");
 const pauseOverlay = document.querySelector("#pauseOverlay");
 
 const BLANK = 0;
@@ -498,8 +499,8 @@ difficultyButtons.forEach((button) => {
 });
 difficultyEl.addEventListener("change", () => {
   updateStartUI();
-  if (gameStarted && !gameOver) startGame();
 });
+newGameButton.addEventListener("click", startGame);
 eraseButton.addEventListener("click", eraseSelected);
 hintButton.addEventListener("click", giveHint);
 pauseButton.addEventListener("click", togglePause);
