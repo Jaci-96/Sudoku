@@ -435,7 +435,13 @@ select {
 }
 
 .cell .notes .selected-note {
+  width: 1.35em;
+  height: 1.35em;
+  justify-self: center;
+  align-self: center;
+  border-radius: 50%;
   color: var(--accent-dark);
+  background: #e0d1ff;
   font-weight: 950;
 }
 
