@@ -434,6 +434,11 @@ select {
   place-items: center;
 }
 
+.cell .notes .selected-note {
+  color: var(--accent-dark);
+  font-weight: 950;
+}
+
 .number-pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
