@@ -272,6 +272,11 @@ function placeNumber(number) {
   if (isNumberComplete(number)) return;
   if (isNumberComplete(values[selected])) return;
 
+  if (values[selected]) {
+    selectNumberInstances(number);
+    return;
+  }
+
   if (noteMode || selectedCells.size > 1) {
     const targets = getEditableSelection().filter((index) => !values[index]);
     if (!targets.length) return;
@@ -300,6 +305,20 @@ function placeNumber(number) {
 
   paintBoard();
   if (!gameOver && values.every((value, index) => value === solution[index])) endGame(true);
+}
+
+function selectNumberInstances(number) {
+  const matches = values
+    .map((value, index) => ({ value, index }))
+    .filter((entry) => entry.value === number)
+    .map((entry) => entry.index);
+
+  if (!matches.length) return;
+
+  selected = matches[0];
+  selectedCells = new Set(matches);
+  hasPlayerSelection = true;
+  paintBoard();
 }
 
 function getEditableSelection() {
