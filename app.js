@@ -205,8 +205,9 @@ function paintBoard() {
       noteGrid.className = "notes";
       for (let number = 1; number <= 9; number += 1) {
         const note = document.createElement("span");
-        note.textContent = notes[index].has(number) ? number : "";
-        if (selectedValue && number === selectedValue) note.classList.add("selected-note");
+        const hasNote = notes[index].has(number);
+        note.textContent = hasNote ? number : "";
+        if (hasNote && selectedValue && number === selectedValue) note.classList.add("selected-note");
         noteGrid.append(note);
       }
       cell.append(noteGrid);
