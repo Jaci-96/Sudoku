@@ -6,6 +6,7 @@ const difficultyButtons = document.querySelectorAll("[data-difficulty]");
 const timerEl = document.querySelector("#timer");
 const mistakesEl = document.querySelector("#mistakes");
 const filledEl = document.querySelector("#filled");
+const bestTimeEl = document.querySelector("#bestTime");
 const messageEl = document.querySelector("#message");
 const notesToggle = document.querySelector("#notesToggle");
 const eraseButton = document.querySelector("#erase");
@@ -14,9 +15,11 @@ const pauseButton = document.querySelector("#pause");
 const newGameButton = document.querySelector("#newGame");
 const pauseOverlay = document.querySelector("#pauseOverlay");
 const winScreen = document.querySelector("#winScreen");
+const winMessageEl = document.querySelector("#winMessage");
 const playAgainButton = document.querySelector("#playAgain");
 
 const BLANK = 0;
+const BEST_TIMES_KEY = "sudokuBestTimes";
 const DIFFICULTY = {
   easy: { clues: 42, label: "Einfach" },
   medium: { clues: 34, label: "Mittel" },
@@ -39,6 +42,7 @@ let timerId = null;
 let gameStarted = false;
 let gameOver = false;
 let isPaused = false;
+let currentDifficulty = difficultyEl.value;
 let hasPlayerSelection = false;
 let isSelecting = false;
 let didDragSelection = false;
@@ -179,6 +183,7 @@ function renderBoard() {
 
 function paintBoard() {
   const selectedValue = values[selected];
+  const selectedNumberComplete = isNumberComplete(selectedValue);
   const selectedRow = Math.floor(selected / 9);
   const selectedCol = selected % 9;
   const selectedBox = Math.floor(selectedRow / 3) * 3 + Math.floor(selectedCol / 3);
@@ -188,14 +193,16 @@ function paintBoard() {
     const col = index % 9;
     const box = Math.floor(row / 3) * 3 + Math.floor(col / 3);
     const value = values[index];
+    const numberComplete = isNumberComplete(value);
 
     cell.className = "cell";
     if (givens[index]) cell.classList.add("given");
+    if (numberComplete) cell.classList.add("complete-number");
     if (gameStarted) {
-      if (selectedCells.has(index)) cell.classList.add("multi-selected");
-      if (index === selected) cell.classList.add("selected");
-      else if (row === selectedRow || col === selectedCol || box === selectedBox) cell.classList.add("related");
-      if (value && selectedValue && value === selectedValue) cell.classList.add("same");
+      if (!numberComplete && selectedCells.has(index)) cell.classList.add("multi-selected");
+      if (!numberComplete && index === selected) cell.classList.add("selected");
+      else if (!selectedNumberComplete && (row === selectedRow || col === selectedCol || box === selectedBox)) cell.classList.add("related");
+      if (!selectedNumberComplete && value && selectedValue && value === selectedValue) cell.classList.add("same");
       if (value && value !== solution[index]) cell.classList.add("error");
     }
 
@@ -209,7 +216,7 @@ function paintBoard() {
         const note = document.createElement("span");
         const hasNote = notes[index].has(number);
         note.textContent = hasNote ? number : "";
-        if (hasNote && selectedValue && number === selectedValue) note.classList.add("selected-note");
+        if (!selectedNumberComplete && hasNote && selectedValue && number === selectedValue) note.classList.add("selected-note");
         noteGrid.append(note);
       }
       cell.append(noteGrid);
@@ -232,18 +239,28 @@ function renderPad() {
 }
 
 function updatePad() {
-  const counts = Array.from({ length: 10 }, () => 0);
-  values.forEach((value, index) => {
-    if (value && value === solution[index]) counts[value] += 1;
-  });
   [...padEl.children].forEach((button, index) => {
-    button.classList.toggle("complete", counts[index + 1] >= 9);
-    button.disabled = !gameStarted || gameOver || isPaused;
+    const number = index + 1;
+    const complete = isNumberComplete(number);
+    button.classList.toggle("complete", complete);
+    button.textContent = complete ? "" : number;
+    button.setAttribute("aria-label", complete ? `Zahl ${number} vollständig` : `Zahl ${number}`);
+    button.disabled = !gameStarted || gameOver || isPaused || complete;
   });
+}
+
+function isNumberComplete(number) {
+  if (!number) return false;
+  let count = 0;
+  values.forEach((value, index) => {
+    if (value === number && value === solution[index]) count += 1;
+  });
+  return count >= 9;
 }
 
 function selectCell(index) {
   if (!gameStarted || gameOver || isPaused) return;
+  if (isNumberComplete(values[index])) return;
   selected = index;
   selectedCells = new Set([index]);
   hasPlayerSelection = true;
@@ -252,6 +269,8 @@ function selectCell(index) {
 
 function placeNumber(number) {
   if (!gameStarted || gameOver || isPaused) return;
+  if (isNumberComplete(number)) return;
+  if (isNumberComplete(values[selected])) return;
 
   if (noteMode || selectedCells.size > 1) {
     const targets = getEditableSelection().filter((index) => !values[index]);
@@ -285,7 +304,7 @@ function placeNumber(number) {
 
 function getEditableSelection() {
   const indexes = selectedCells.size ? [...selectedCells] : [selected];
-  return indexes.filter((index) => !givens[index]);
+  return indexes.filter((index) => !givens[index] && !isNumberComplete(values[index]));
 }
 
 function clearNumberFromPeers(index, number) {
@@ -360,14 +379,60 @@ function updateStats() {
 }
 
 function updateTimer() {
-  const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-  renderTimer(elapsed);
+  renderTimer(getElapsedSeconds());
 }
 
 function renderTimer(elapsed) {
+  timerEl.textContent = formatElapsed(elapsed);
+}
+
+function formatElapsed(elapsed) {
   const minutes = String(Math.floor(elapsed / 60)).padStart(2, "0");
   const seconds = String(elapsed % 60).padStart(2, "0");
-  timerEl.textContent = `${minutes}:${seconds}`;
+  return `${minutes}:${seconds}`;
+}
+
+function getElapsedSeconds() {
+  return Math.floor((Date.now() - startedAt) / 1000);
+}
+
+function loadBestTimes() {
+  try {
+    const saved = localStorage.getItem(BEST_TIMES_KEY);
+    return saved ? JSON.parse(saved) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveBestTimes(bestTimes) {
+  try {
+    localStorage.setItem(BEST_TIMES_KEY, JSON.stringify(bestTimes));
+  } catch {
+    // Best scores are optional; the game should keep working without storage.
+  }
+}
+
+function getBestTime(level = gameStarted ? currentDifficulty : difficultyEl.value) {
+  const bestTimes = loadBestTimes();
+  const bestTime = Number(bestTimes[level]);
+  return Number.isFinite(bestTime) && bestTime > 0 ? bestTime : null;
+}
+
+function updateBestTimeDisplay() {
+  const bestTime = getBestTime();
+  bestTimeEl.textContent = bestTime ? formatElapsed(bestTime) : "--:--";
+}
+
+function recordBestTime(level, elapsed) {
+  const bestTimes = loadBestTimes();
+  const previous = Number(bestTimes[level]);
+  if (Number.isFinite(previous) && previous > 0 && previous <= elapsed) return false;
+
+  bestTimes[level] = elapsed;
+  saveBestTimes(bestTimes);
+  updateBestTimeDisplay();
+  return true;
 }
 
 function setMessage(text) {
@@ -375,6 +440,8 @@ function setMessage(text) {
 }
 
 function endGame(won) {
+  const elapsed = getElapsedSeconds();
+  const level = currentDifficulty;
   gameOver = true;
   isPaused = false;
   window.clearInterval(timerId);
@@ -384,7 +451,12 @@ function endGame(won) {
   } else {
     setMessage("Drei Fehler erreicht. Starte einfach ein neues Spiel.");
   }
-  if (won) setMessage("Gewonnen! Alles richtig gel\u00f6st.");
+  if (won) {
+    const isNewBest = recordBestTime(level, elapsed);
+    const resultMessage = isNewBest ? `Neuer Rekord: ${formatElapsed(elapsed)} auf ${DIFFICULTY[level].label}.` : `Gewonnen in ${formatElapsed(elapsed)}.`;
+    setMessage(resultMessage);
+    winMessageEl.textContent = resultMessage;
+  }
   updateWinUI(won);
   paintBoard();
 }
@@ -407,6 +479,8 @@ function startGame() {
   updateStartUI();
 
   const level = difficultyEl.value;
+  currentDifficulty = level;
+  updateBestTimeDisplay();
   const generated = generatePuzzle(level);
   puzzle = generated.puzzleGrid;
   solution = generated.full;
@@ -462,6 +536,7 @@ function startGameWithDifficulty(level) {
 
 function startCellSelection(event, index) {
   if (!gameStarted || gameOver || isPaused) return;
+  if (isNumberComplete(values[index])) return;
   event.preventDefault();
   isSelecting = true;
   didDragSelection = false;
@@ -472,6 +547,7 @@ function startCellSelection(event, index) {
 }
 
 function addCellToSelection(index) {
+  if (isNumberComplete(values[index])) return;
   if (selectedCells.has(index)) return;
   selected = index;
   selectedCells.add(index);
@@ -550,10 +626,12 @@ function updateWinUI(isVisible) {
   winScreen.classList.toggle("visible", isVisible);
   winScreen.setAttribute("aria-hidden", String(!isVisible));
   boardEl.classList.toggle("finished", isVisible);
+  if (!isVisible) winMessageEl.textContent = "Alles richtig gel\u00f6st.";
 }
 
 function updateStartUI() {
   appEl.classList.toggle("start-mode", !gameStarted);
+  updateBestTimeDisplay();
   difficultyButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.difficulty === difficultyEl.value);
   });
@@ -572,11 +650,14 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     const row = Math.floor(selected / 9);
     const col = selected % 9;
-    if (event.key === "ArrowUp") selected = Math.max(0, row - 1) * 9 + col;
-    if (event.key === "ArrowDown") selected = Math.min(8, row + 1) * 9 + col;
-    if (event.key === "ArrowLeft") selected = row * 9 + Math.max(0, col - 1);
-    if (event.key === "ArrowRight") selected = row * 9 + Math.min(8, col + 1);
-    selectedCells = new Set([selected]);
+    let nextSelected = selected;
+    if (event.key === "ArrowUp") nextSelected = Math.max(0, row - 1) * 9 + col;
+    if (event.key === "ArrowDown") nextSelected = Math.min(8, row + 1) * 9 + col;
+    if (event.key === "ArrowLeft") nextSelected = row * 9 + Math.max(0, col - 1);
+    if (event.key === "ArrowRight") nextSelected = row * 9 + Math.min(8, col + 1);
+    if (isNumberComplete(values[nextSelected])) return;
+    selected = nextSelected;
+    selectedCells = new Set([nextSelected]);
     hasPlayerSelection = true;
     paintBoard();
   }

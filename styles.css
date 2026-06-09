@@ -519,8 +519,23 @@ select {
 }
 
 .number-pad button.complete {
-  color: var(--muted);
-  background: #f4efff;
+  color: transparent;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  opacity: 1;
+  cursor: default;
+  pointer-events: none;
+}
+
+.number-pad button.complete:hover {
+  transform: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.cell.complete-number {
+  cursor: default;
 }
 
 .message {
@@ -536,7 +551,7 @@ select {
   }
 
   .status-panel {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .actions {
@@ -625,7 +640,7 @@ select {
   }
 
   .status-panel {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 4px;
   }
 

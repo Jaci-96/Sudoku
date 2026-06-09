@@ -50,6 +50,10 @@
             <span>Gefüllt</span>
             <strong><span id="filled">0</span>/81</strong>
           </div>
+          <div class="stat">
+            <span>Bestzeit</span>
+            <strong id="bestTime">--:--</strong>
+          </div>
           <div class="actions">
             <button id="pause" type="button" aria-pressed="false">Pause</button>
             <button id="notesToggle" type="button" aria-pressed="false">Notizen</button>
@@ -68,7 +72,7 @@
           <div id="board" class="board" role="grid" aria-label="Sudoku Spielfeld"></div>
           <div id="winScreen" class="win-screen" aria-hidden="true">
             <strong>Gewonnen!</strong>
-            <span>Alles richtig gel&ouml;st.</span>
+            <span id="winMessage">Alles richtig gel&ouml;st.</span>
             <button id="playAgain" type="button">Neues Spiel</button>
           </div>
           <div id="pauseOverlay" class="pause-overlay" aria-hidden="true">
