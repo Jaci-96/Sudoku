@@ -306,6 +306,53 @@ select {
   opacity: 0.5;
 }
 
+.board.finished {
+  display: none;
+}
+
+.win-screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  place-content: center;
+  gap: 12px;
+  border: 3px solid var(--bold-line);
+  border-radius: 6px;
+  color: var(--ink);
+  text-align: center;
+  background: #ffffff;
+}
+
+.win-screen.visible {
+  display: grid;
+}
+
+.win-screen strong {
+  font-size: clamp(2.2rem, 7vw, 4.6rem);
+  line-height: 1;
+}
+
+.win-screen span {
+  color: var(--muted);
+  font-weight: 760;
+}
+
+.win-screen button {
+  min-width: min(280px, 72vw);
+  min-height: 50px;
+  padding: 0 18px;
+  border-color: var(--accent);
+  color: #ffffff;
+  background: var(--accent);
+  font-weight: 850;
+}
+
+.win-screen button:hover {
+  border-color: var(--accent-dark);
+  background: var(--accent-dark);
+}
+
 .pause-overlay {
   position: absolute;
   inset: 10px;

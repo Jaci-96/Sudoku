@@ -13,6 +13,8 @@ const hintButton = document.querySelector("#hint");
 const pauseButton = document.querySelector("#pause");
 const newGameButton = document.querySelector("#newGame");
 const pauseOverlay = document.querySelector("#pauseOverlay");
+const winScreen = document.querySelector("#winScreen");
+const playAgainButton = document.querySelector("#playAgain");
 
 const BLANK = 0;
 const DIFFICULTY = {
@@ -251,7 +253,7 @@ function selectCell(index) {
 function placeNumber(number) {
   if (!gameStarted || gameOver || isPaused) return;
 
-  if (noteMode) {
+  if (noteMode || selectedCells.size > 1) {
     const targets = getEditableSelection().filter((index) => !values[index]);
     if (!targets.length) return;
     const shouldRemove = targets.every((index) => notes[index].has(number));
@@ -382,6 +384,8 @@ function endGame(won) {
   } else {
     setMessage("Drei Fehler erreicht. Starte einfach ein neues Spiel.");
   }
+  if (won) setMessage("Gewonnen! Alles richtig gel\u00f6st.");
+  updateWinUI(won);
   paintBoard();
 }
 
@@ -398,6 +402,7 @@ function startGame() {
   noteMode = false;
   notesToggle.setAttribute("aria-pressed", "false");
   notesToggle.textContent = "Notizen";
+  updateWinUI(false);
   setMessage("Wähle ein Feld und setze eine Zahl.");
   updateStartUI();
 
@@ -444,6 +449,7 @@ function showStartScreen() {
   setMessage("Wähle eine Schwierigkeit, dann startet dein Sudoku.");
   notesToggle.setAttribute("aria-pressed", "false");
   notesToggle.textContent = "Notizen";
+  updateWinUI(false);
   updateStartUI();
   updatePauseUI();
   renderBoard();
@@ -506,6 +512,7 @@ newGameButton.addEventListener("click", startGame);
 eraseButton.addEventListener("click", eraseSelected);
 hintButton.addEventListener("click", giveHint);
 pauseButton.addEventListener("click", togglePause);
+playAgainButton.addEventListener("click", showStartScreen);
 
 function togglePause() {
   if (!gameStarted || gameOver) return;
@@ -537,6 +544,12 @@ function updatePauseUI() {
   notesToggle.disabled = !gameStarted || isPaused || gameOver;
   eraseButton.disabled = !gameStarted || isPaused || gameOver;
   hintButton.disabled = !gameStarted || isPaused || gameOver;
+}
+
+function updateWinUI(isVisible) {
+  winScreen.classList.toggle("visible", isVisible);
+  winScreen.setAttribute("aria-hidden", String(!isVisible));
+  boardEl.classList.toggle("finished", isVisible);
 }
 
 function updateStartUI() {
